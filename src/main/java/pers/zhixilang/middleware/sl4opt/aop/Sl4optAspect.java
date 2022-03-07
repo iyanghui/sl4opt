@@ -15,8 +15,8 @@ import pers.zhixilang.middleware.sl4opt.core.Sl4optParser;
 import pers.zhixilang.middleware.sl4opt.exception.Sl4optException;
 import pers.zhixilang.middleware.sl4opt.pojo.OptLog;
 import pers.zhixilang.middleware.sl4opt.pojo.OptLogTemplate;
-import pers.zhixilang.middleware.sl4opt.service.ILogService;
-import pers.zhixilang.middleware.sl4opt.service.IOperatorService;
+import pers.zhixilang.middleware.sl4opt.service.ISl4optLogService;
+import pers.zhixilang.middleware.sl4opt.service.ISl4optOperatorService;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Method;
@@ -39,10 +39,10 @@ public class Sl4optAspect {
     private Sl4optParser sl4OptParser;
 
     @Resource
-    private ILogService logService;
+    private ISl4optLogService logService;
 
     @Resource
-    private IOperatorService operatorService;
+    private ISl4optOperatorService operatorService;
 
     /**
      * sl4opt切面

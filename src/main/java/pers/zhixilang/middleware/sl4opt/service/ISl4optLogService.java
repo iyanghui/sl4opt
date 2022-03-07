@@ -8,7 +8,7 @@ import pers.zhixilang.middleware.sl4opt.pojo.OptLog;
  * @version 1.0.0
  * date 2021-10-24 23:07
  */
-public interface ILogService {
+public interface ISl4optLogService {
     /**
      * log归档
      * @param optLog log

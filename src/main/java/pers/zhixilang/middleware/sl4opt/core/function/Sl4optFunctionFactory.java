@@ -21,6 +21,8 @@ public class Sl4optFunctionFactory {
     private static Map<String, ISl4optFunction> functionMap = new HashMap<>(0);
 
     public Sl4optFunctionFactory(List<ISl4optFunction> functions) {
+        FunctionParser.injectFactory(this);
+
         if (functions.size() == 0) {
             return;
         }
@@ -34,8 +36,6 @@ public class Sl4optFunctionFactory {
 
             functionMap.put(function.name(), function);
         }
-
-        FunctionParser.injectFactory(this);
     }
 
     /**

@@ -1,6 +1,5 @@
 package pers.zhixilang.middleware.sl4opt.core;
 
-import com.sun.istack.internal.Nullable;
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.expression.Expression;
@@ -126,7 +125,7 @@ public class SpelTest {
             return name;
         }
 
-        public void setName(@Nullable String name) {
+        public void setName(String name) {
             this.name = name;
         }
     }

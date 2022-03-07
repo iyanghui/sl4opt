@@ -7,10 +7,10 @@ import pers.zhixilang.middleware.sl4opt.aop.Sl4optAspect;
 import pers.zhixilang.middleware.sl4opt.core.Sl4optParser;
 import pers.zhixilang.middleware.sl4opt.core.function.ISl4optFunction;
 import pers.zhixilang.middleware.sl4opt.core.function.Sl4optFunctionFactory;
-import pers.zhixilang.middleware.sl4opt.service.ILogService;
-import pers.zhixilang.middleware.sl4opt.service.IOperatorService;
-import pers.zhixilang.middleware.sl4opt.service.impl.Sl4optLogServiceImpl;
-import pers.zhixilang.middleware.sl4opt.service.impl.Sl4optorServiceImpl;
+import pers.zhixilang.middleware.sl4opt.service.ISl4optLogService;
+import pers.zhixilang.middleware.sl4opt.service.ISl4optOperatorService;
+import pers.zhixilang.middleware.sl4opt.service.impl.DefaultLogServiceImpl;
+import pers.zhixilang.middleware.sl4opt.service.impl.DefaultOperatorServiceImpl;
 
 import java.util.List;
 
@@ -28,15 +28,15 @@ public class Sl4optAutoConfiguration {
     }
 
     @Bean("sl4optOperatorService")
-    @ConditionalOnMissingBean(IOperatorService.class)
-    public IOperatorService operatorService() {
-        return new Sl4optorServiceImpl();
+    @ConditionalOnMissingBean(ISl4optOperatorService.class)
+    public ISl4optOperatorService operatorService() {
+        return new DefaultOperatorServiceImpl();
     }
 
     @Bean("sl4optLogService")
-    @ConditionalOnMissingBean(ILogService.class)
-    public ILogService logService() {
-        return new Sl4optLogServiceImpl();
+    @ConditionalOnMissingBean(ISl4optLogService.class)
+    public ISl4optLogService logService() {
+        return new DefaultLogServiceImpl();
     }
 
     @Bean
@@ -45,7 +45,7 @@ public class Sl4optAutoConfiguration {
     }
 
     @Bean
-    public Sl4optParser sl4optExpressionParser(IOperatorService operatorService) {
+    public Sl4optParser sl4optExpressionParser(ISl4optOperatorService operatorService) {
         return new Sl4optParser();
     }
 }
