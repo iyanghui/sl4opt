@@ -54,6 +54,12 @@ public class Sl4optMainTest {
     @Test
     public void argFunctionTest() {
         bizService.argFunctionDo(person);
+
+        String name = person.getName();
+        person.setName(null);
+        bizService.argFunctionDo(person);
+
+        person.setName(name);
     }
 
 

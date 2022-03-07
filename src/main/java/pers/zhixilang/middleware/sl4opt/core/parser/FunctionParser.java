@@ -54,15 +54,14 @@ public class FunctionParser {
         ISl4optFunction function = functionFactory.getFunction(functionName);
         if (null == function) {
             throw new Sl4optException(functionName + "(" + parameters + ")",
-                    "function apply error=> no exists function, please check");
+                    "function apply error=> function「"+ functionName +"」 not exists.");
         }
 
         try {
             return function.apply(args);
         } catch (Exception e) {
             throw new Sl4optException(functionName + "(" + parameters + ")",
-                    "function apply error=> args「" + Arrays.toString(args) +
-                    "」",
+                    "function apply error=> args「" + Arrays.toString(args) + "」",
                     e);
         }
     }

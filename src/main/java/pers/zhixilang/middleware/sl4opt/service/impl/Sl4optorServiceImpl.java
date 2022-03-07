@@ -12,6 +12,6 @@ import pers.zhixilang.middleware.sl4opt.service.IOperatorService;
 public class Sl4optorServiceImpl implements IOperatorService {
     @Override
     public String currentOperator() {
-        return null;
+        return "ADMINISTRATOR";
     }
 }
