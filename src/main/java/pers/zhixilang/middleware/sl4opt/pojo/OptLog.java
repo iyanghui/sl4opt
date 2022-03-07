@@ -20,9 +20,9 @@ public class OptLog {
     private String content;
 
     /**
-     * 发生时间
+     * log时间
      */
-    private Long execTime;
+    private Long time;
 
     /**
      * 业务类型
@@ -38,39 +38,55 @@ public class OptLog {
         return result;
     }
 
-    public void setResult(Result result) {
+    public OptLog setResult(Result result) {
         this.result = result;
+        return this;
     }
 
     public String getContent() {
         return content;
     }
 
-    public void setContent(String content) {
+    public OptLog setContent(String content) {
         this.content = content;
+        return this;
     }
 
-    public Long getExecTime() {
-        return execTime;
+    public Long getTime() {
+        return time;
     }
 
-    public void setExecTime(Long execTime) {
-        this.execTime = execTime;
+    public OptLog setTime(Long time) {
+        this.time = time;
+        return this;
     }
 
     public String getBizType() {
         return bizType;
     }
 
-    public void setBizType(String bizType) {
+    public OptLog setBizType(String bizType) {
         this.bizType = bizType;
+        return this;
     }
 
     public String getOperator() {
         return operator;
     }
 
-    public void setOperator(String operator) {
+    public OptLog setOperator(String operator) {
         this.operator = operator;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "OptLog{" +
+                "result=" + result +
+                ", content='" + content + '\'' +
+                ", time=" + time +
+                ", bizType='" + bizType + '\'' +
+                ", operator='" + operator + '\'' +
+                '}';
     }
 }

@@ -1,12 +1,13 @@
 package pers.zhixilang.middleware.sl4opt.core;
 
-import org.springframework.expression.EvaluationContext;
-import org.springframework.expression.Expression;
-import org.springframework.expression.ParserContext;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
-import pers.zhixilang.middleware.sl4opt.pojo.OptLog;
-import pers.zhixilang.middleware.sl4opt.pojo.OptLogTemplate;
-import pers.zhixilang.middleware.sl4opt.service.IOperatorService;
+import org.springframework.util.StringUtils;
+import pers.zhixilang.middleware.sl4opt.core.parser.FunctionParser;
+import pers.zhixilang.middleware.sl4opt.core.parser.ValueParser;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 自定义Expression解析器
@@ -15,27 +16,38 @@ import pers.zhixilang.middleware.sl4opt.service.IOperatorService;
  * date 2022-03-05 20:29
  */
 public class Sl4optParser {
+    /**
+     * 模板表达式pattern
+     */
+    private final Pattern pattern = Pattern.compile("@\\s*(\\w*)\\s*(.*?)@");
 
-    private SpelExpressionParser spelExpressionParser = new SpelExpressionParser();
+    public void parse(Map<String, String> expressionMap) {
+        if (null == expressionMap)  {
+            return;
+        }
 
-    private ParserContext parserContext = new Sl4optTemplateParserContext();
+        Set<String> keySet = expressionMap.keySet();
+        Matcher matcher;
+        for (String expressionStr: keySet) {
 
-    private IOperatorService operatorService;
+            matcher = pattern.matcher(expressionStr);
+            StringBuffer sb = new StringBuffer();
 
-    public Sl4optParser(IOperatorService operatorService) {
-        this.operatorService = operatorService;
-    }
+            while (matcher.find()) {
+                String valueExpressionStr = matcher.group(2);
+                String functionExpressionStr = matcher.group(1);
+                String parsedStr;
 
-    public OptLog parse(OptLogTemplate optLogTemplate) {
-        OptLog optLog = new OptLog();
+                if (StringUtils.isEmpty(functionExpressionStr)) {
+                    parsedStr = ValueParser.parse(valueExpressionStr);
+                } else {
+                    parsedStr = FunctionParser.parse(functionExpressionStr, valueExpressionStr);
+                }
 
-        Expression expression = spelExpressionParser.parseExpression(optLogTemplate.getContent(), parserContext);
-
-        EvaluationContext evaluationContext = Sl4optContext.getContext();
-        Object value = expression.getValue(evaluationContext);
-
-        optLog.setContent((String) value);
-        optLog.setResult(optLogTemplate.getResult());
-        return optLog;
+                matcher.appendReplacement(sb, parsedStr);
+            }
+            matcher.appendTail(sb);
+            expressionMap.put(expressionStr, sb.toString());
+        }
     }
 }

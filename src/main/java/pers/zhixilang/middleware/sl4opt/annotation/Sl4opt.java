@@ -29,10 +29,10 @@ public @interface Sl4opt {
     String fail() default "";
 
     /**
-     * 操作类型,支持模板
+     * 业务类型,支持模板
      * @return 类型
      */
-    String bizType();
+    String bizType() default "";
 
     /**
      * 操作员对象信息,支持模板

@@ -4,17 +4,24 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.DefaultParameterNameDiscoverer;
+import org.springframework.util.StringUtils;
 import pers.zhixilang.middleware.sl4opt.annotation.Sl4opt;
 import pers.zhixilang.middleware.sl4opt.constants.Result;
 import pers.zhixilang.middleware.sl4opt.core.Sl4optContext;
 import pers.zhixilang.middleware.sl4opt.core.Sl4optParser;
-import pers.zhixilang.middleware.sl4opt.pojo.OptLogTemplate;
+import pers.zhixilang.middleware.sl4opt.exception.Sl4optException;
 import pers.zhixilang.middleware.sl4opt.pojo.OptLog;
+import pers.zhixilang.middleware.sl4opt.pojo.OptLogTemplate;
 import pers.zhixilang.middleware.sl4opt.service.ILogService;
+import pers.zhixilang.middleware.sl4opt.service.IOperatorService;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author zhixilang
@@ -24,6 +31,8 @@ import java.lang.reflect.Method;
 @Aspect
 public class Sl4optAspect {
 
+    private static final Logger logger = LoggerFactory.getLogger("sl4opt");
+
     private static final DefaultParameterNameDiscoverer DISCOVERER = new DefaultParameterNameDiscoverer();
 
     @Resource
@@ -31,6 +40,9 @@ public class Sl4optAspect {
 
     @Resource
     private ILogService logService;
+
+    @Resource
+    private IOperatorService operatorService;
 
     /**
      * sl4opt切面
@@ -60,7 +72,7 @@ public class Sl4optAspect {
 
         } catch (Throwable throwable) {
             Sl4optContext.putErr(throwable.getMessage());
-            optLogTemplate.setResult(Result.SUCCESS);
+            optLogTemplate.setResult(Result.FAIL);
 
             throw throwable;
         }  finally {
@@ -107,7 +119,43 @@ public class Sl4optAspect {
     }
 
     private void parseAndArchive(OptLogTemplate optLogTemplate) {
-        OptLog optLog = sl4OptParser.parse(optLogTemplate);
+        OptLog optLog = new OptLog().setBizType(optLogTemplate.getBizType())
+                .setResult(optLogTemplate.getResult())
+                .setTime(System.currentTimeMillis())
+                .setOperator(optLogTemplate.getOperator())
+                .setContent(optLogTemplate.getContent());
+
+        Map<String, String> expressionMap = new HashMap<>(4);
+        expressionMap.put(optLogTemplate.getContent(), null);
+
+        String operator = getOperatorOrPut(optLogTemplate.getOperator(), expressionMap);
+
+        try {
+            sl4OptParser.parse(expressionMap);
+
+            operator = (operator == null) ? expressionMap.get(optLogTemplate.getOperator()) : operator;
+            optLog.setOperator(operator);
+            optLog.setContent(expressionMap.get(optLogTemplate.getContent()));
+        } catch (Sl4optException e) {
+            logger.error(e.getMessage(), e);
+        }
+
         logService.archive(optLog);
+    }
+
+    /**
+     * 获取operator
+     * 1. 从service获取
+     * 2. 自定义
+     * @param operatorStr @sl4opt.operator
+     * @param expressionMap expression map
+     * @return operator
+     */
+    private String getOperatorOrPut(String operatorStr, Map<String, String> expressionMap) {
+        if (StringUtils.isEmpty(operatorStr)) {
+            return operatorService.currentOperator();
+        }
+        expressionMap.put(operatorStr, null);
+        return null;
     }
 }

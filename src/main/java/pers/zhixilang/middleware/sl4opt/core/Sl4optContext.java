@@ -14,7 +14,10 @@ public class Sl4optContext {
     private static final ThreadLocal<StandardEvaluationContext> THREAD_LOCAL = new ThreadLocal<StandardEvaluationContext>(){
         @Override
         protected StandardEvaluationContext initialValue() {
-            return new StandardEvaluationContext();
+            StandardEvaluationContext context = new StandardEvaluationContext(null);
+            context.setVariable(Sl4optVariables.ERR, null);
+            context.setVariable(Sl4optVariables.RES, null);
+            return context;
         }
     };
 

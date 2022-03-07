@@ -1,12 +1,13 @@
-package pers.zhixilang.middleware.sl4opt;
+package pers.zhixilang.middleware.sl4opt.core;
 
 import com.sun.istack.internal.Nullable;
+import org.junit.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.common.TemplateParserContext;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import pers.zhixilang.middleware.sl4opt.service.UserService;
 
 import java.lang.reflect.Method;
 import java.util.regex.Matcher;
@@ -17,13 +18,38 @@ import java.util.regex.Pattern;
  * @version 1.0.0
  * date 2021-10-24 23:06
  */
+@SpringBootTest
 public class SpelTest {
-    public static void main(String[] args) {
+
+    @Test
+    public void patternTest() {
+
+        String expressionStr = "hello @#name@, gen nickName=@ADD#request.name,#age@, ID=@#_res.id@";
+        final Pattern pattern1 = Pattern.compile("@\\s*(\\w*)\\s*(.*?)@");
+
+        Matcher matcher = pattern1.matcher(expressionStr);
+
+        StringBuffer sb = new StringBuffer();
+        while (matcher.find()) {
+            System.out.println(matcher.toString());
+            String c = matcher.group(2);
+            String functionName = matcher.group(1);
+            System.out.println("expression: " + c);
+            System.out.println("functionName: " + functionName);
+
+            matcher.appendReplacement(sb, "replace");
+        }
+        matcher.appendTail(sb);
+
+        System.out.println(sb.toString());
+    }
+
+    @Test
+    public void expressionTest() {
 
 
         ExpressionParser expressionParser = new SpelExpressionParser();
 
-//        StandardEvaluationContext context = new StandardEvaluationContext(person);
         StandardEvaluationContext context = new StandardEvaluationContext();
 
 
@@ -54,20 +80,6 @@ public class SpelTest {
 
 
 
-        final Pattern pattern = Pattern.compile("\\{\\s*(\\w*)\\s*\\{(.*?)}}");
-        Matcher matcher = pattern.matcher("my name is {{#name}}, age is {{#person.age}},function={say{#sex,#address}}");
-
-        while (matcher.find()) {
-            String c = matcher.group(2);
-            String functionName = matcher.group(1);
-            System.out.println("expression: " + c);
-            System.out.println("functionName: " + functionName);
-        }
-//        String expStr = "hello #{person.name}";
-
-//        expression = expressionParser.parseExpression(expStr);
-
-
         try {
             Method method = SpelTest.class.getDeclaredMethod("say", String.class);
             method.setAccessible(true);
@@ -90,15 +102,6 @@ public class SpelTest {
             expression = expressionParser.parseExpression("templateParser function: #{#say(#person.name) + '...'}",
                     new TemplateParserContext());
 
-            System.out.println(expression.getValue(context));
-
-
-            method = UserService.class.getDeclaredMethod("print");
-            method.setAccessible(true);
-
-            context.registerFunction("print", method);
-
-            expression = expressionParser.parseExpression("#print()");
             System.out.println(expression.getValue(context));
 
 

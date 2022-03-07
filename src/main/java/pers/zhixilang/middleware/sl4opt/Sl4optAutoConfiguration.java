@@ -5,10 +5,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import pers.zhixilang.middleware.sl4opt.aop.Sl4optAspect;
 import pers.zhixilang.middleware.sl4opt.core.Sl4optParser;
+import pers.zhixilang.middleware.sl4opt.core.function.ISl4optFunction;
+import pers.zhixilang.middleware.sl4opt.core.function.Sl4optFunctionFactory;
 import pers.zhixilang.middleware.sl4opt.service.ILogService;
 import pers.zhixilang.middleware.sl4opt.service.IOperatorService;
 import pers.zhixilang.middleware.sl4opt.service.impl.Sl4optLogServiceImpl;
 import pers.zhixilang.middleware.sl4opt.service.impl.Sl4optorServiceImpl;
+
+import java.util.List;
 
 /**
  * @author zhixilang
@@ -36,7 +40,12 @@ public class Sl4optAutoConfiguration {
     }
 
     @Bean
+    public Sl4optFunctionFactory sl4optFunctionFactory(List<ISl4optFunction> functions) {
+        return new Sl4optFunctionFactory(functions);
+    }
+
+    @Bean
     public Sl4optParser sl4optExpressionParser(IOperatorService operatorService) {
-        return new Sl4optParser(operatorService);
+        return new Sl4optParser();
     }
 }
