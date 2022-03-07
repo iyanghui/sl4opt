@@ -1,7 +1,7 @@
 package pers.zhixilang.middleware.sl4opt.core;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+import pers.zhixilang.middleware.sl4opt.constants.Sl4optVariables;
 
 /**
  * sl4opt执行上下文,存储Expression过程数据
@@ -11,12 +11,16 @@ import java.util.Map;
  */
 public class Sl4optContext {
 
-    private static final ThreadLocal<Map<String, Object>> THREAD_LOCAL = new ThreadLocal<Map<String, Object>>(){
+    private static final ThreadLocal<StandardEvaluationContext> THREAD_LOCAL = new ThreadLocal<StandardEvaluationContext>(){
         @Override
-        protected Map<String, Object> initialValue() {
-            return new HashMap<>(10);
+        protected StandardEvaluationContext initialValue() {
+            return new StandardEvaluationContext();
         }
     };
+
+    public static StandardEvaluationContext getContext() {
+        return THREAD_LOCAL.get();
+    }
 
     /**
      * 增加variable
@@ -24,19 +28,62 @@ public class Sl4optContext {
      * @param value value
      */
     public static void putVariable(String key, Object value) {
-        Sl4optContext.THREAD_LOCAL.get().put(key, value);
+        THREAD_LOCAL.get().setVariable(key, value);
     }
 
-    public static Map<String, Object> getVariables() {
-        return Sl4optContext.THREAD_LOCAL.get();
+    /**
+     * set global variable {@code _stime}
+     * @see Sl4optVariables#S_TIME
+     * @param stime 时间(timestamp)
+     */
+    public static void putStime(long stime) {
+        putVariable(Sl4optVariables.S_TIME, stime);
     }
 
-    public static Object getVariable(String key) {
-        return Sl4optContext.THREAD_LOCAL.get().get(key);
+    /**
+     * set global variable {@code _etime}
+     * @see Sl4optVariables#E_TIME
+     * @param etime 时间(timestamp)
+     */
+    public static void putEtime(long etime) {
+        putVariable(Sl4optVariables.E_TIME, etime);
     }
 
-    public static void clear() {
-        Sl4optContext.THREAD_LOCAL.get().clear();
-        Sl4optContext.THREAD_LOCAL.remove();
+    /**
+     * set global variable {@code time}
+     * @see Sl4optVariables#TIME
+     * @param time 时间
+     */
+    public static void putTime(long  time) {
+        putVariable(Sl4optVariables.TIME, time);
+    }
+
+    /**
+     * set global variable {@code _res}
+     * @see Sl4optVariables#RES
+     * @param res 方法执行返回
+     */
+    public static void putRes(Object res) {
+        putVariable(Sl4optVariables.RES, res);
+    }
+
+    /**
+     * set global variable {@code _err}
+     * @see Sl4optVariables#ERR
+     * @param err 报错信息
+     */
+    public static void putErr(String err) {
+        putVariable(Sl4optVariables.ERR, err);
+    }
+
+    public static void registerFunction() {
+
+    }
+
+    /**
+     * 清除上下文
+     */
+    public static void clearContext() {
+        THREAD_LOCAL.remove();
     }
 }

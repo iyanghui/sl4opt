@@ -32,7 +32,7 @@ public @interface Sl4opt {
      * 操作类型,支持模板
      * @return 类型
      */
-    String type();
+    String bizType();
 
     /**
      * 操作员对象信息,支持模板
