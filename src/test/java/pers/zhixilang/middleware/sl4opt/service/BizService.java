@@ -53,7 +53,7 @@ public class BizService {
     }
 
 
-    @Sl4opt(success = "新增用户「@#person.name@」成功, 自动生成昵称「@nick_func#person.name,#person.age@」",
+    @Sl4opt(success = "新增用户「@#person.name@」成功, 自动生成昵称「@nick_func#person.name,#person.age@」, 耗时「@#_time@」",
             bizType = "1")
     public void multiArgFunctionDo(Person person) {
         System.out.println("...");

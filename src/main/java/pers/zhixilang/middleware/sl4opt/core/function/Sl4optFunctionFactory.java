@@ -27,7 +27,7 @@ public class Sl4optFunctionFactory {
             return;
         }
 
-        // avoid HashMap resize, * (4/3) ≈ 1.5
+        // avoid HashMap resize, 1/0.75F ≈ 1.5
         functionMap = new HashMap<>((int) Math.ceil(functions.size() * 1.5));
         for (ISl4optFunction function: functions) {
             if (functionMap.containsKey(function.name())) {

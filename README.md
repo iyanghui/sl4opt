@@ -1,4 +1,4 @@
-> 本项目的思路来源于美团技术团队的文章[如何优雅地记录操作日志？](https://tech.meituan.com/2021/09/16/operational-logbook.html),请知悉！
+> 本项目的实现思路来源于美团技术团队文章[如何优雅地记录操作日志？](https://tech.meituan.com/2021/09/16/operational-logbook.html)
 >
 
 # 项目介绍
@@ -9,6 +9,7 @@
 
 # 接入步骤
 ## `Maven`引入
+- [ ] 注册maven repo
 
 ## 使配置生效
 
@@ -38,7 +39,5 @@
 | _etime | 方法执行结束时时间戳(timestamp) |
 
 # 待实现内容
-- [ ] 支持自定义函数解析
-- [ ] 支持Spring Bean方法解析
 - [ ] log归档对接HTTP调用
 - [ ] log归档对接消息队列(暂定rabbitMQ)

@@ -21,6 +21,10 @@ public class Sl4optParser {
      */
     private final Pattern pattern = Pattern.compile("@\\s*(\\w*)\\s*(.*?)@");
 
+    /**
+     * 模板表达式解析
+     * @param expressionMap expression map
+     */
     public void parse(Map<String, String> expressionMap) {
         if (null == expressionMap)  {
             return;

@@ -58,7 +58,7 @@ public class Sl4optAspect {
 
         registryParameters(method, joinPoint.getArgs());
 
-        OptLogTemplate optLogTemplate = buildLogEvent(sl4opt);
+        OptLogTemplate optLogTemplate = buildLogTemplate(sl4opt);
 
         long sTime = System.currentTimeMillis();
         Sl4optContext.putStime(sTime);
@@ -69,7 +69,6 @@ public class Sl4optAspect {
 
             Sl4optContext.putRes(res);
             optLogTemplate.setResult(Result.SUCCESS);
-
         } catch (Throwable throwable) {
             Sl4optContext.putErr(throwable.getMessage());
             optLogTemplate.setResult(Result.FAIL);
@@ -93,7 +92,7 @@ public class Sl4optAspect {
      * @param sl4opt 核心注解{@code sl4opt}
      * @return LogEvent
      */
-    private OptLogTemplate buildLogEvent(Sl4opt sl4opt) {
+    private OptLogTemplate buildLogTemplate(Sl4opt sl4opt) {
         OptLogTemplate optLogTemplate = new OptLogTemplate();
         optLogTemplate.setSuccess(sl4opt.success());
         optLogTemplate.setFail(sl4opt.fail());
@@ -118,6 +117,10 @@ public class Sl4optAspect {
         }
     }
 
+    /**
+     * 解析template并归档
+     * @param optLogTemplate 原始template
+     */
     private void parseAndArchive(OptLogTemplate optLogTemplate) {
         OptLog optLog = new OptLog().setBizType(optLogTemplate.getBizType())
                 .setResult(optLogTemplate.getResult())
@@ -125,9 +128,7 @@ public class Sl4optAspect {
                 .setOperator(optLogTemplate.getOperator())
                 .setContent(optLogTemplate.getContent());
 
-        Map<String, String> expressionMap = new HashMap<>(4);
-        expressionMap.put(optLogTemplate.getContent(), null);
-
+        Map<String, String> expressionMap = buildExpressionMap(optLogTemplate);
         String operator = getOperatorOrPut(optLogTemplate.getOperator(), expressionMap);
 
         try {
@@ -141,6 +142,19 @@ public class Sl4optAspect {
         }
 
         logService.archive(optLog);
+    }
+
+    /**
+     * build expression map for parsing
+     * @param optLogTemplate 原始template
+     * @return expression map
+     */
+    private Map<String, String> buildExpressionMap(OptLogTemplate optLogTemplate) {
+        Map<String, String> expressionMap = new HashMap<>(4);
+        expressionMap.put(optLogTemplate.getContent(), null);
+        expressionMap.put(optLogTemplate.getBizType(), null);
+
+        return expressionMap;
     }
 
     /**
