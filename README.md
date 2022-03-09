@@ -17,7 +17,7 @@
 public class LogAspect {
     @Around("@annotation(xx.xx.Log)")
     public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable {
-		// ...省略
+        // ...省略
         Log log = xxx.getAnnotation(Log.class);
         // ...省略
         HttpServletRequest request = xxx.getRequest();
@@ -60,7 +60,7 @@ public class LogAspect {
         String id = UUID.randomUUID().toString();
         person.setId(id);
         
-				Sl4optContext.putVariable("extra", "ok");
+        Sl4optContext.putVariable("extra", "ok");
         return person;
     }
 
@@ -97,7 +97,8 @@ public class Person {
 > 关于`bizType`和`operator`在之后做介绍。
 
 可以看到`sl4opt`在使用上和上述方案并没什么不同，同样是提供一个注解，业务方在目标方法进行引用，之后再由`Sl4optAspect`完成日志搜集，在这里业务方可通过实现暴露的日志接口完成日志归档（默认使用`slf4j`进行输出）。
-主要需要关注的点在于注解参数的配置调整：为了实现灵活记录自定义日志内容，`@Sl4opt`参数可以使用模板表达式进行配置，提供**常规表达式**、**自定义变量**、**全局变量**和**自定义函数**支持。
+
+主要需要关注的点在注解参数的配置上：为了实现灵活记录自定义日志内容，`@Sl4opt`可以使用模板表达式进行配置，提供**常规表达式**、**自定义变量**、**全局变量**和**自定义函数**支持。
 
 下面将详细介绍如何接入和使用`sl4opt`。
 # 如何使用
@@ -106,7 +107,7 @@ public class Person {
 由于`sl4opt`还没有发布到公共的`Maven`仓库，所以业务方需要手动下载后 -> `maven clear install`到本地仓库后进行集成。
 
 ### 使配置生效
-`sl4opt`在被引入后默认是不开启状态，需要在项目启动类或者任意`Configuration`类手动引入`@EnableSl4opt`使其生效。
+`sl4opt`在被引入后默认是不开启状态，需要在项目启动类手动引入`@EnableSl4opt`使其生效。
 ```java
 @SpringBootApplication
 @EnableSl4opt
@@ -126,7 +127,7 @@ public class Application {
 - `bizType`:  业务类型(非必填)，常规的扩展字段，支持模板表达式配置，默认为空。
 
 ### 接口扩展
-`sl4opt`在记录和归档阶段分别提供了一个扩展接口，业务可以通过实现接口来完成开发。
+`sl4opt`在日志的搜集和归档阶段分别提供了一个扩展接口，业务可以通过实现暴露的接口来完成扩展。
 
 - **操作对象相关**
 ```java
@@ -139,7 +140,8 @@ public interface ISl4optOperatorService {
 }
 ```
 这个接口在上面介绍`@Sl4opt`时已经做了个简单说明，功能就是获取当前操作对象，当`@Sl4opt`未配置`operator`时，将会调用该接口获取操作对象。
-`sl4opt`对该接口进行了默认实现：返回`ADMINISTRATOR`。
+
+`sl4opt`对该接口进行了默认实现 => 返回`ADMINISTRATOR`。
 
 - **日志相关**
 ```java
@@ -152,7 +154,8 @@ public interface ISl4optLogService {
 }
 ```
 这个接口的功能是做日志的归档，日志解析完成后会调用该方法传入`OptLog`对象。
-`sl4opt`同样对该接口进行了默认实现：使用`slf4j`对其进行输出。
+
+`sl4opt`同样对该接口进行了默认实现 => 使用`slf4j`对其进行输出。
 
 ## 业务使用
 **!!!模板必须被@包围**
@@ -164,7 +167,7 @@ public void createUser(String name, Integer age) {
 
 }
 ```
-有获取方法入参值的情况时，可在模板表达式中配置该参数名，并且在参数名称前面加上"#"即可完成引用。
+当有使用方法入参值的时候，可直接在模板表达式中配置该参数名，然后在参数名称前面加上"#"即可完成获取。
 
 ```java
 @Sl4opt(success = "新增用户「@#person.name@」成功", bizType = "1")
@@ -172,7 +175,7 @@ public void createPerson(Person person) {
     
 }
 ```
-和获取普通入参类似，当入参是`pojo`时，可以通过指定字段名称进行引用。
+和获取普通入参类似，当入参是`pojo`时，可以通过定位到对象字段名来进行获取。
 
 ### 自定义变量
 由于``sl4opt`的实现原理是基于[SpEL](https://docs.spring.io/spring-framework/docs/3.0.x/reference/expressions.html)，所以也支持自定义变量（上下文传递）的设置和获取：
@@ -186,9 +189,9 @@ public void print() {
 另外自定义的变量也可以是`pojo`，使用上和普通表达式一样。
 
 ### 自定义`function`
-`sl4opt`支持**自定义`function`**的调用，其中对参数没有数量限制(多个参数中间使用英文”,“进行分隔），而且传递进来的参数**也支持表达式和变量引用**。
+`sl4opt`支持**自定义`function`**的调用，其中对参数没有数量限制(多个参数中间使用英文”,“进行分隔），同时入参也**支持表达式和变量引用**。
 
-首先通过实现`ISl4optFunction`接口完成自定义功能开发:
+首先通过实现`ISl4optFunction`完成自定义功能扩展:
 ```java
 @Component
 public class NickGenFunction implements ISl4optFunction {
@@ -208,6 +211,7 @@ public class NickGenFunction implements ISl4optFunction {
 }
 ```
 > 必须实现`name`方法，`sl4opt`通过返回的名称来进行函数定位。
+> 
 > 必须将实现的`function`交给`Spring IoC Context`进行管理
 
 ```java
@@ -216,10 +220,10 @@ public class NickGenFunction implements ISl4optFunction {
 public void createPerson(Person person) {
 }
 ```
-自定义函数的使用与普通表达式的区别就是在@和#中间加上了函数了名称。
+自定义函数的使用与普通表达式的区别就是**在@和#之间加上了函数了名称**。
 
 ### 全局变量
-考虑到方法执行中会有一些通用的过程及结果信息，为了避免这部分变量的重复定义，`sl4opt`将这些执行期间的信息变量进行了预置，业务方可直接将其配置到模板中。
+考虑到方法执行中都会产生一些过程及结果信息，为了避免在使用时对这部分变量的重复定义，`sl4opt`将这些信息变量进行了预置，业务方可直接在模板中进行引用，使用上和自定义变量完全一致。
 
 | 变量name | 说明 | 生效范围 |
 | --- | --- | --- |
@@ -237,4 +241,5 @@ public String globalVariables() {
     return "global variables";
 }
 ```
+如果`#_res`是`pojo`，则同样可以通过`#_res.xx`来完成具体字段值的获取。
 
