@@ -16,10 +16,10 @@ public class ValueParser {
 
     private static ExpressionParser expressionParser = new SpelExpressionParser();
 
-    public static String parse(String expressionStr) {
+    public static Object parse(String expressionStr) {
         try {
             Expression expression =  expressionParser.parseExpression(expressionStr);
-            return String.valueOf(expression.getValue(Sl4optContext.getContext()));
+            return expression.getValue(Sl4optContext.getContext());
         } catch (Exception e) {
             throw new Sl4optException(expressionStr, "value parse error.", e);
         }

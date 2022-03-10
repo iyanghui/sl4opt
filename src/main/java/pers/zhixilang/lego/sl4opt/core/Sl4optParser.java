@@ -43,7 +43,7 @@ public class Sl4optParser {
                 String parsedStr;
 
                 if (StringUtils.isEmpty(functionExpressionStr)) {
-                    parsedStr = ValueParser.parse(valueExpressionStr);
+                    parsedStr = String.valueOf(ValueParser.parse(valueExpressionStr));
                 } else {
                     parsedStr = FunctionParser.parse(functionExpressionStr, valueExpressionStr);
                 }
