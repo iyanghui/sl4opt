@@ -4,19 +4,16 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.util.StringUtils;
 import pers.zhixilang.lego.sl4opt.annotation.Sl4opt;
 import pers.zhixilang.lego.sl4opt.constants.Result;
 import pers.zhixilang.lego.sl4opt.core.Sl4optContext;
-import pers.zhixilang.lego.sl4opt.exception.Sl4optException;
+import pers.zhixilang.lego.sl4opt.core.Sl4optParser;
 import pers.zhixilang.lego.sl4opt.pojo.OptLog;
 import pers.zhixilang.lego.sl4opt.pojo.OptLogTemplate;
 import pers.zhixilang.lego.sl4opt.service.ISl4optLogService;
 import pers.zhixilang.lego.sl4opt.service.ISl4optOperatorService;
-import pers.zhixilang.lego.sl4opt.core.Sl4optParser;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Method;
@@ -30,8 +27,6 @@ import java.util.Map;
  */
 @Aspect
 public class Sl4optAspect {
-
-    private static final Logger logger = LoggerFactory.getLogger("sl4opt");
 
     private static final DefaultParameterNameDiscoverer DISCOVERER = new DefaultParameterNameDiscoverer();
 
@@ -131,15 +126,12 @@ public class Sl4optAspect {
         Map<String, String> expressionMap = buildExpressionMap(optLogTemplate);
         String operator = getOperatorOrPut(optLogTemplate.getOperator(), expressionMap);
 
-        try {
-            sl4OptParser.parse(expressionMap);
 
-            operator = (operator == null) ? expressionMap.get(optLogTemplate.getOperator()) : operator;
-            optLog.setOperator(operator);
-            optLog.setContent(expressionMap.get(optLogTemplate.getContent()));
-        } catch (Sl4optException e) {
-            logger.error(e.getMessage(), e);
-        }
+        sl4OptParser.parse(expressionMap);
+
+        operator = (operator == null) ? expressionMap.get(optLogTemplate.getOperator()) : operator;
+        optLog.setOperator(operator);
+        optLog.setContent(expressionMap.get(optLogTemplate.getContent()));
 
         logService.archive(optLog);
     }

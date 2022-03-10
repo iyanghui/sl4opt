@@ -1,8 +1,11 @@
 package pers.zhixilang.lego.sl4opt.core;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import pers.zhixilang.lego.sl4opt.core.parser.FunctionParser;
 import pers.zhixilang.lego.sl4opt.core.parser.ValueParser;
+import pers.zhixilang.lego.sl4opt.exception.Sl4optException;
 
 import java.util.Map;
 import java.util.Set;
@@ -20,6 +23,8 @@ public class Sl4optParser {
      * 模板表达式pattern
      */
     private final Pattern pattern = Pattern.compile("@\\s*(\\w*)\\s*(.*?)@");
+
+    private static final Logger logger = LoggerFactory.getLogger("sl4opt");
 
     /**
      * 模板表达式解析
@@ -42,10 +47,15 @@ public class Sl4optParser {
                 String functionExpressionStr = matcher.group(1);
                 String parsedStr;
 
-                if (StringUtils.isEmpty(functionExpressionStr)) {
-                    parsedStr = String.valueOf(ValueParser.parse(valueExpressionStr));
-                } else {
-                    parsedStr = FunctionParser.parse(functionExpressionStr, valueExpressionStr);
+                try {
+                    if (StringUtils.isEmpty(functionExpressionStr)) {
+                        parsedStr = String.valueOf(ValueParser.parse(valueExpressionStr));
+                    } else {
+                        parsedStr = FunctionParser.parse(functionExpressionStr, valueExpressionStr);
+                    }
+                } catch (Sl4optException e) {
+                    logger.error("parse error=> {}", e.getMessage(), e);
+                    parsedStr = matcher.group();
                 }
 
                 matcher.appendReplacement(sb, parsedStr);
