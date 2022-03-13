@@ -20,11 +20,13 @@ public class BizService {
 
     @Sl4opt(success = "hello @#name@", bizType = "1",
             fail = "失败: @#_err@")
+    @Sl4opt(success = "新增成功", bizType = "@#bizType@", operator = "test")
     public String parameterDo(String name, Integer age) {
         if (age <= 0) {
             throw new RuntimeException("age不合法");
         }
 
+        Sl4optContext.putVariable("bizType", 60001);
         return "=> name: " + name + "; age:" + age;
     }
 
