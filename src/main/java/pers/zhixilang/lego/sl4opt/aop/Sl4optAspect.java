@@ -45,7 +45,8 @@ public class Sl4optAspect {
      * @return res
      * @throws Throwable
      */
-    @Around("@annotation(pers.zhixilang.lego.sl4opt.annotation.Sl4opt)")
+    @Around("@annotation(pers.zhixilang.lego.sl4opt.annotation.Sl4opt) || @annotation(pers.zhixilang.lego.sl4opt" +
+            ".annotation.Sl4opt)")
     public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         Method method = methodSignature.getMethod();
