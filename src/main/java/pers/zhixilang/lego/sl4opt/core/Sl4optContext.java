@@ -79,14 +79,11 @@ public class Sl4optContext {
         putVariable(Sl4optVariables.ERR, err);
     }
 
-    public static void registerFunction() {
-
-    }
-
     /**
      * 清除上下文
      */
     public static void clearContext() {
         THREAD_LOCAL.remove();
     }
+
 }

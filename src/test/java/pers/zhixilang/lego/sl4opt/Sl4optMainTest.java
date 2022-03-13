@@ -38,6 +38,7 @@ public class Sl4optMainTest {
     @Test
     public void parametersTest() {
         bizService.parameterDo("zs", 18);
+//        bizService.parameterDo("lisi", 19);
     }
 
     @Test
