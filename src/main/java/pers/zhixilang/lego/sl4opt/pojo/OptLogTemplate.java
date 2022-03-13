@@ -1,7 +1,5 @@
 package pers.zhixilang.lego.sl4opt.pojo;
 
-import pers.zhixilang.lego.sl4opt.constants.Result;
-
 /**
  * log模板
  * @author zhixilang
@@ -28,11 +26,6 @@ public class OptLogTemplate {
      * operator模板
      */
     private String operator;
-
-    /**
-     * 操作结果
-     */
-    private Result result;
 
     public String getSuccess() {
         return success;
@@ -66,15 +59,4 @@ public class OptLogTemplate {
         this.operator = operator;
     }
 
-    public Result getResult() {
-        return result;
-    }
-
-    public void setResult(Result result) {
-        this.result = result;
-    }
-
-    public String getContent() {
-        return (Result.SUCCESS.equals(this.result)) ? this.success : this.fail;
-    }
 }

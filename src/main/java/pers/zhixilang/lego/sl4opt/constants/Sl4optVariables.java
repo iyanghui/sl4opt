@@ -2,7 +2,7 @@ package pers.zhixilang.lego.sl4opt.constants;
 
 /**
  * sl4opt全局变量定义,可在模板表达式中进行引用
- * exp=> success="新增成功，返回结果=@#_res@"
+ * e.g. (success="新增成功，返回结果=@#_res@", fail="新增失败,error msg=@#_err@")
  * @author zhixilang
  * @version 1.0.0
  * date 2022-03-06 17:29

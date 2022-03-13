@@ -17,7 +17,9 @@ import pers.zhixilang.lego.sl4opt.service.ISl4optOperatorService;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -45,28 +47,32 @@ public class Sl4optAspect {
      * @return res
      * @throws Throwable
      */
-    @Around("@annotation(pers.zhixilang.lego.sl4opt.annotation.Sl4opt)")
+    @Around("@annotation(pers.zhixilang.lego.sl4opt.annotation.Sl4opt) || @annotation(pers.zhixilang.lego.sl4opt" +
+            ".annotation.Sl4opts)")
     public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         Method method = methodSignature.getMethod();
-        Sl4opt sl4opt = method.getAnnotation(Sl4opt.class);
 
-        registryParameters(method, joinPoint.getArgs());
+        registryMethodParameters(method, joinPoint.getArgs());
 
-        OptLogTemplate optLogTemplate = buildLogTemplate(sl4opt);
+        Sl4opt[] sl4opts = method.getAnnotationsByType(Sl4opt.class);
+        List<OptLogTemplate> templates = new ArrayList<>();
+        for (Sl4opt sl4opt: sl4opts) {
+            templates.add(buildLogTemplate(sl4opt));
+        }
 
         long sTime = System.currentTimeMillis();
         Sl4optContext.putStime(sTime);
 
-        Object res;
+        Result result = Result.SUCCESS;
         try {
-            res = joinPoint.proceed();
+            Object res = joinPoint.proceed();
 
             Sl4optContext.putRes(res);
-            optLogTemplate.setResult(Result.SUCCESS);
+            return res;
         } catch (Throwable throwable) {
+            result = Result.FAIL;
             Sl4optContext.putErr(throwable.getMessage());
-            optLogTemplate.setResult(Result.FAIL);
 
             throw throwable;
         }  finally {
@@ -74,12 +80,12 @@ public class Sl4optAspect {
             Sl4optContext.putEtime(eTime);
             Sl4optContext.putTime(eTime - sTime);
 
-            parseAndArchive(optLogTemplate);
-
-            Sl4optContext.clearContext();
+            try {
+                parseAndArchive(templates, result);
+            } finally {
+                Sl4optContext.clearContext();
+            }
         }
-
-        return res;
     }
 
     /**
@@ -101,7 +107,7 @@ public class Sl4optAspect {
      * @param method 目标方法
      * @param args 入参
      */
-    private void registryParameters(Method method, Object[] args) {
+    private void registryMethodParameters(Method method, Object[] args) {
         Object[] parameters = DISCOVERER.getParameterNames(method);
         if (null == parameters) {
             return;
@@ -114,40 +120,31 @@ public class Sl4optAspect {
 
     /**
      * 解析template并归档
-     * @param optLogTemplate 原始template
+     * @param templates 原始template集合
+     * @param result 方法执行状态
      */
-    private void parseAndArchive(OptLogTemplate optLogTemplate) {
-        OptLog optLog = new OptLog().setBizType(optLogTemplate.getBizType())
-                .setResult(optLogTemplate.getResult())
-                .setTime(System.currentTimeMillis())
-                .setOperator(optLogTemplate.getOperator())
-                .setContent(optLogTemplate.getContent());
+    private void parseAndArchive(List<OptLogTemplate> templates, Result result) {
+        for (OptLogTemplate optLogTemplate: templates) {
+            OptLog optLog = new OptLog().setResult(result)
+                    .setTime(System.currentTimeMillis());
 
-        Map<String, String> expressionMap = buildExpressionMap(optLogTemplate);
-        String operator = getOperatorOrPut(optLogTemplate.getOperator(), expressionMap);
+            // build expression map for parsing
+            Map<String, String> expressionMap = new HashMap<>(4);
+            expressionMap.put(getContentFromTemplate(optLogTemplate, result), null);
+            expressionMap.put(optLogTemplate.getBizType(), null);
+            String operator = getOperatorOrPut(optLogTemplate.getOperator(), expressionMap);
 
+            sl4OptParser.parse(expressionMap);
 
-        sl4OptParser.parse(expressionMap);
+            operator = (operator == null) ? expressionMap.get(optLogTemplate.getOperator()) : operator;
+            optLog.setOperator(operator);
+            optLog.setContent(expressionMap.get(getContentFromTemplate(optLogTemplate, result)));
+            optLog.setBizType(expressionMap.get(optLogTemplate.getBizType()));
 
-        operator = (operator == null) ? expressionMap.get(optLogTemplate.getOperator()) : operator;
-        optLog.setOperator(operator);
-        optLog.setContent(expressionMap.get(optLogTemplate.getContent()));
-
-        logService.archive(optLog);
+            logService.archive(optLog);
+        }
     }
 
-    /**
-     * build expression map for parsing
-     * @param optLogTemplate 原始template
-     * @return expression map
-     */
-    private Map<String, String> buildExpressionMap(OptLogTemplate optLogTemplate) {
-        Map<String, String> expressionMap = new HashMap<>(4);
-        expressionMap.put(optLogTemplate.getContent(), null);
-        expressionMap.put(optLogTemplate.getBizType(), null);
-
-        return expressionMap;
-    }
 
     /**
      * 获取operator
@@ -163,5 +160,9 @@ public class Sl4optAspect {
         }
         expressionMap.put(operatorStr, null);
         return null;
+    }
+
+    private String getContentFromTemplate(OptLogTemplate template, Result result) {
+        return Result.SUCCESS.equals(result) ? template.getSuccess() : template.getFail();
     }
 }
