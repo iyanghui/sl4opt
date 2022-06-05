@@ -10,7 +10,6 @@ import pers.zhixilang.lego.sl4opt.constants.Sl4optVariables;
  * date 2022-03-05 20:27
  */
 public class Sl4optContext {
-    private static String UnusedVar = "amnam";
     private static final ThreadLocal<StandardEvaluationContext> THREAD_LOCAL = new ThreadLocal<StandardEvaluationContext>(){
         @Override
         protected StandardEvaluationContext initialValue() {
