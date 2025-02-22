@@ -54,7 +54,7 @@ public class Sl4optParser {
                         parsedStr = FunctionParser.parse(functionExpressionStr, valueExpressionStr);
                     }
                 } catch (Sl4optException e) {
-                    logger.error("parse error=> {}", e.getMessage(), e);
+                    logger.error("parse error=> ", e);
                     parsedStr = matcher.group();
                 }
 

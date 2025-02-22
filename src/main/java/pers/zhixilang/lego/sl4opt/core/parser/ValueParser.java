@@ -14,7 +14,7 @@ import pers.zhixilang.lego.sl4opt.exception.Sl4optException;
  */
 public class ValueParser {
 
-    private static ExpressionParser expressionParser = new SpelExpressionParser();
+    private static final ExpressionParser expressionParser = new SpelExpressionParser();
 
     public static Object parse(String expressionStr) {
         try {

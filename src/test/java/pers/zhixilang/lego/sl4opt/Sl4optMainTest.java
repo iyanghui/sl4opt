@@ -29,7 +29,7 @@ public class Sl4optMainTest {
     @Resource
     private BizService bizService;
 
-    private Person person = new Person();
+    private final Person person = new Person();
     {
         person.setName("zs");
         person.setAge(18);

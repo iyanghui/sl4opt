@@ -20,6 +20,6 @@ public class Sl4optException extends RuntimeException {
 
     @Override
     public String getMessage() {
-        return "expressionStr: 「" + this.expressionStr + "」; detail: 「" + super.getMessage() + "」";
+        return "expressionStr: [" + this.expressionStr + "]; detail: [" + super.getMessage() + "]";
     }
 }
